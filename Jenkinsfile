@@ -5,7 +5,7 @@ pipeline {
 	}
 	environment {
 		DOCKER_HUB_REPO = 'asifniloy45/gitops-app'
-		//DOCKER_HUB_CREDENTIALS_ID = 'gitops-dockerhub'
+		DOCKER_HUB_CREDENTIALS_ID = 'gitops-dockerhub'
 	}
 	stages {
 		stage('Checkout Github'){
@@ -59,7 +59,7 @@ pipeline {
 				script {
 					kubeconfig(credentialsId: 'kubeconfig', serverUrl: 'https://192.168.49.2:8443') {
     						sh '''
-						argocd login 44.211.76.138:31559 --username admin --password $(kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) --insecure
+						argocd login 54.179.152.192:31354 --username admin --password $(kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) --insecure
 						argocd app sync argocdjenkins
 						'''
 					}	
