@@ -1,12 +1,12 @@
 pipeline {
 	agent any
-	tools {
+	/*tools {
 		nodejs 'NodeJS'
-	}
-	environment {
+	}*/
+	/*environment {
 		DOCKER_HUB_REPO = 'asifniloy45/node-app'
 		DOCKER_HUB_CREDENTIALS_ID = 'gitops-dockerhub'
-	}
+	}*/
 	stages {
 		stage('Checkout Github'){
 			steps {
@@ -15,7 +15,10 @@ pipeline {
 		}		
 		stage('Install node dependencies'){
 			steps {
-				sh 'npm install'
+				//sh 'npm install'
+				sh '''
+				echo 'installing node dependencies...'
+				'''
 			}
 		}
 		stage('Build Docker Image'){
