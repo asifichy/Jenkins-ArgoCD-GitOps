@@ -54,16 +54,46 @@ pipeline {
 				'''
 			}
 		}
+		stage('Configure ArgoCD RBAC') {
+			steps {
+				sh '''
+				# Create ArgoCD role binding for Jenkins
+				kubectl create rolebinding jenkins-argocd \
+				--clusterrole=admin \
+				--serviceaccount=default:default \
+				--namespace=argocd || true
+				'''
+			}
+		}
 		stage('Apply Kubernetes Manifests & Sync App with ArgoCD'){
 			steps {
 				script {
 					kubeconfig(credentialsId: 'kubeconfig', serverUrl: 'https://192.168.49.2:8443') {
     						sh '''
-						argocd login 54.179.152.192:31354 --username admin --password $(kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) --insecure
-						argocd app sync argocdjenkins
+							ARGOCD_PASSWORD=$(kubectl get secret -n argocd argocd-initial-admin-secret \
+							-o jsonpath="{.data.password}" | base64 -d)
+							
+							argocd login 54.179.152.192:31354 \
+							--username admin \
+							--password $ARGOCD_PASSWORD \
+							--grpc-web \
+							--insecure
+							
+							argocd app sync argocdjenkins --retry-limit 5 --retry-backoff-duration 30
 						'''
 					}	
 				}
+			}
+		}
+		stage('Verify ArgoCD Connectivity') {
+			steps {
+				sh '''
+				# Check if ArgoCD server is reachable
+				timeout 30 bash -c 'until nc -zv 54.179.152.192 31354; do sleep 2; done'
+				
+				# Verify API access
+				argocd version --client
+				'''
 			}
 		}
 	}
