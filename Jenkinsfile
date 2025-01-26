@@ -79,7 +79,7 @@ pipeline {
 							--grpc-web \
 							--insecure
 							
-							argocd app sync argocdjenkins --retry-limit 5 --retry-backoff-duration 30
+							argocd app sync jenkins-argocd-gitops --retry-limit 5 --retry-backoff-duration 30
 						'''
 					}	
 				}
